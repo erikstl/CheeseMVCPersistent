@@ -14,17 +14,20 @@ namespace CheeseMVC.Controllers
     {
         private CheeseDbContext context;
 
+        public MenuController(CheeseDbContext dbContext)
+        {
+            context = dbContext;
+        }
+
         public IActionResult Index()
         {
             List<Menu> menus = context.Menus.ToList();
             return View(menus);
         }
 
-        [HttpGet]
         public IActionResult Add()
         {
             AddMenuViewModel addMenuViewModel = new AddMenuViewModel();
-
             return View(addMenuViewModel);
         }
 
@@ -64,6 +67,38 @@ namespace CheeseMVC.Controllers
             };
 
             return View(viewMenuViewModel);
+        }
+
+        public IActionResult AddItem(int id)
+        {
+            Menu menu = context.Menus.Single(m => m.ID == id);
+            List<Cheese> cheeses = context.Cheeses.ToList();
+            return View(new AddMenuItemViewModel(menu, cheeses));
+        }
+
+        [HttpPost]
+        public IActionResult AddItem(AddMenuItemViewModel addMenuItemViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                IList<CheeseMenu> existingItems = context.CheeseMenus
+                    .Where(cm => cm.CheeseID == addMenuItemViewModel.CheeseID)
+                    .Where(cm => cm.MenuID == addMenuItemViewModel.MenuID).ToList();
+
+                if (existingItems.Count.Equals(0))
+                {
+                    CheeseMenu newCheeseMenu = new CheeseMenu
+                    {
+                        Cheese = context.Cheeses.Single(c => c.ID == addMenuItemViewModel.CheeseID),
+                        Menu = context.Menus.Single(m => m.ID == addMenuItemViewModel.MenuID)
+                    };
+
+                    context.CheeseMenus.Add(newCheeseMenu);
+                    context.SaveChanges();
+                }
+                return Redirect("/Menu/ViewMenu/" + addMenuItemViewModel.MenuID);
+            }
+            return View(addMenuItemViewModel);
         }
     }
 }
