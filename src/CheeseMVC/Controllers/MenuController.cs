@@ -57,6 +57,7 @@ namespace CheeseMVC.Controllers
             List<CheeseMenu> items = context
                 .CheeseMenus
                 .Include(item => item.Cheese)
+                .Include(item => item.Cheese.Category)
                 .Where(cm => cm.MenuID == id)
                 .ToList();
 
@@ -81,19 +82,22 @@ namespace CheeseMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                IList<CheeseMenu> existingItems = context.CheeseMenus
-                    .Where(cm => cm.CheeseID == addMenuItemViewModel.CheeseID)
-                    .Where(cm => cm.MenuID == addMenuItemViewModel.MenuID).ToList();
+                var cheeseID = addMenuItemViewModel.CheeseID;
+                var menuID = addMenuItemViewModel.MenuID;
 
-                if (existingItems.Count.Equals(0))
+                IList<CheeseMenu> existingItems = context.CheeseMenus
+                    .Where(cm => cm.CheeseID == cheeseID)
+                    .Where(cm => cm.MenuID == menuID).ToList();
+
+                if (existingItems.Count == 0)
                 {
-                    CheeseMenu newCheeseMenu = new CheeseMenu
+                    CheeseMenu menuItem = new CheeseMenu
                     {
-                        Cheese = context.Cheeses.Single(c => c.ID == addMenuItemViewModel.CheeseID),
-                        Menu = context.Menus.Single(m => m.ID == addMenuItemViewModel.MenuID)
+                        Cheese = context.Cheeses.Single(c => c.ID == cheeseID),
+                        Menu = context.Menus.Single(m => m.ID == menuID)
                     };
 
-                    context.CheeseMenus.Add(newCheeseMenu);
+                    context.CheeseMenus.Add(menuItem);
                     context.SaveChanges();
                 }
                 return Redirect("/Menu/ViewMenu/" + addMenuItemViewModel.MenuID);
