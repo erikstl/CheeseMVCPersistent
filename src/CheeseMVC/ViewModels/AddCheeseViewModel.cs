@@ -17,7 +17,6 @@ namespace CheeseMVC.ViewModels
         [Required(ErrorMessage = "You must give your cheese a description")]
         public string Description { get; set; }
 
-        [Required]
         [Display(Name = "Category")]
         public int CategoryID { get; set; }
         
@@ -28,6 +27,20 @@ namespace CheeseMVC.ViewModels
         public AddCheeseViewModel(IEnumerable<CheeseCategory> categories) {
 
             //Categories = new List<SelectListItem>();
+            Categories = new List<SelectListItem>();
+
+            foreach (CheeseCategory category in categories)
+            {
+                Categories.Add(new SelectListItem
+                {
+                    Value = category.ID.ToString(),
+                    Text = category.Name
+                });
+            }
+        }
+
+        public void CategoryList(IEnumerable<CheeseCategory> categories)
+        {
             Categories = new List<SelectListItem>();
 
             foreach (CheeseCategory category in categories)

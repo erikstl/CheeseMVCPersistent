@@ -5,6 +5,7 @@ using CheeseMVC.ViewModels;
 using CheeseMVC.Data;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace CheeseMVC.Controllers
 {
@@ -21,8 +22,6 @@ namespace CheeseMVC.Controllers
         public IActionResult Index()
         {
             IList<Cheese> cheeses = context.Cheeses.Include(c => c.Category).ToList();
-            //List<Cheese> cheeses = context.Cheeses.ToList();
-
             return View(cheeses);
         }
 
@@ -52,7 +51,7 @@ namespace CheeseMVC.Controllers
 
                 return Redirect("/Cheese");
             }
-
+            addCheeseViewModel.CategoryList(context.Categories);
             return View(addCheeseViewModel);
         }
 
@@ -77,5 +76,19 @@ namespace CheeseMVC.Controllers
             return Redirect("/");
 
         }
+
+        /*public IActionResult Edit(int id)
+        {
+            ViewBag.title = "Edit Cheese";
+            ViewBag.cheese = context.Cheeses.Single(c => c.ID == id);
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Edit(int id, string name, string description)
+        {
+            return View();
+        }
+        */
     }
 }
